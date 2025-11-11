@@ -118,7 +118,7 @@ app.get("/api/incidents", async (req, res) => {
 
   try {
     const r = await axios.get(
-      `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description`,
+      `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description&sysparm_limit=100`,
       {
         headers: { Authorization: `Bearer ${session.access_token}` },
       }
@@ -140,7 +140,7 @@ app.get("/api/incidents", async (req, res) => {
         tokenStore.set(sid, { ...session, ...refresh.data });
 
         const retry = await axios.get(
-          `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=number%2Cstate%2Cpriority%2Cshort_description`,
+          `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=number%2Cstate%2Cpriority%2Cshort_description&sysparm_limit=100`,
           {
             headers: { Authorization: `Bearer ${session.access_token}` },
           }
@@ -199,7 +199,11 @@ app.post("/api/incidents", async (req, res) => {
     return res.status(401).send("Not authenticated");
   }
 
-  const payload = req.body;
+  // Ensure priority is a number
+  const payload = {
+    ...req.body,
+    priority: Number(req.body.priority),
+  };
 
   try {
     const r = await axios.post(
@@ -244,6 +248,91 @@ app.post("/api/incidents", async (req, res) => {
         );
 
         return res.status(retry.status).json(retry.data);
+      } catch (refreshErr) {
+        return res.status(401).send("Session Expired");
+      }
+    }
+
+    if (e.response) {
+      return res.status(e.response.status).json(e.response.data);
+    }
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.put("/api/incidents/:id", async (req, res) => {
+  const sid = req.cookies.sid;
+  const session = tokenStore.get(sid);
+
+  if (!session || !session.access_token) {
+    return res.status(401).send("Not authenticated");
+  }
+
+  const incidentId = req.params.id;
+  
+  // Ensure priority is a number
+  const payload = {
+    ...req.body,
+    priority: Number(req.body.priority),
+  };
+
+  try {
+    const r = await axios.put(
+      `${SN_INTANCE}/api/now/table/incident/${incidentId}`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Fetch the updated incident with display values to return to client
+    const getUpdated = await axios.get(
+      `${SN_INTANCE}/api/now/table/incident/${incidentId}?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description`,
+      {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      }
+    );
+
+    return res.status(200).json({ result: getUpdated.data.result[0] || getUpdated.data.result });
+  } catch (e) {
+    // If unauthorized, try to refresh and retry once
+    if (e.response?.status === 401 && session.refresh_token) {
+      try {
+        const data = {
+          grant_type: "refresh_token",
+          refresh_token: session.refresh_token,
+          client_id: CLIENT_ID,
+        };
+
+        const refresh = await axios.post(tokenEndpoint, stringify(data), {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+
+        tokenStore.set(sid, { ...session, ...refresh.data, obtained_at: Date.now() });
+
+        const retry = await axios.put(
+          `${SN_INTANCE}/api/now/table/incident/${incidentId}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${refresh.data.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // Fetch the updated incident with display values
+        const getUpdated = await axios.get(
+          `${SN_INTANCE}/api/now/table/incident/${incidentId}?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description`,
+          {
+            headers: { Authorization: `Bearer ${refresh.data.access_token}` },
+          }
+        );
+
+        return res.status(200).json({ result: getUpdated.data.result[0] || getUpdated.data.result });
       } catch (refreshErr) {
         return res.status(401).send("Session Expired");
       }
