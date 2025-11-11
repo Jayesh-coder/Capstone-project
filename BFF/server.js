@@ -191,5 +191,69 @@ app.delete("/api/incidents/:id", async (req, res) => {
     }
   }
 });
+app.post("/api/incidents", async (req, res) => {
+  const sid = req.cookies.sid;
+  const session = tokenStore.get(sid);
+
+  if (!session || !session.access_token) {
+    return res.status(401).send("Not authenticated");
+  }
+
+  const payload = req.body;
+
+  try {
+    const r = await axios.post(
+      `${SN_INTANCE}/api/now/table/incident`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Pass ServiceNow response back to client
+    return res.status(r.status).json(r.data);
+  } catch (e) {
+    // If token expired, try refresh -> retry once
+    if (e.response?.status === 401 && session.refresh_token) {
+      try {
+        const data = {
+          grant_type: "refresh_token",
+          refresh_token: session.refresh_token,
+          client_id: CLIENT_ID,
+        };
+
+        const refresh = await axios.post(tokenEndpoint, stringify(data), {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+
+        tokenStore.set(sid, { ...session, ...refresh.data, obtained_at: Date.now() });
+
+        // retry create with new token
+        const retry = await axios.post(
+          `${SN_INTANCE}/api/now/table/incident`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${refresh.data.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        return res.status(retry.status).json(retry.data);
+      } catch (refreshErr) {
+        return res.status(401).send("Session Expired");
+      }
+    }
+
+    if (e.response) {
+      return res.status(e.response.status).json(e.response.data);
+    }
+    return res.status(500).json({ error: "Server error" });
+  }
+});
 
 app.listen(3001, () => console.log("BFF on 3001"));
