@@ -1,8 +1,122 @@
-.form {
-    background-color:rgb(255, 255, 255); 
-    padding: 20px;
-    border-radius: 8px; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: fit-content; 
-    margin-bottom: 20px;
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Form Paper Styling */
+.formPaper {
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  padding: 2.5rem;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  border-left: 5px solid #1565c0;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 800px;
+}
+
+.formPaper:hover {
+  box-shadow: 0 8px 32px rgba(21, 101, 192, 0.12);
+  border-left-color: #0d47a1;
+}
+
+.formTitle {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #1565c0;
+  letter-spacing: 0.4px;
+}
+
+/* Cards Grid */
+.cardsGrid {
+  width: 100%;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(21, 101, 192, 0.15);
+  border-color: #1565c0;
+}
+
+.cardContent {
+  padding: 1.75rem;
+  flex: 1;
+  background: linear-gradient(180deg, #fff 0%, #fcfdfe 100%);
+}
+
+.cardTitle {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #1565c0;
+  margin-bottom: 0.75rem;
+}
+
+.cardDesc {
+  color: #424242;
+  line-height: 1.6;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.cardActions {
+  padding: 1.25rem 1.75rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(21,101,192,0.02) 100%);
+  border-top: 1px solid #efefef;
+  gap: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 960px) {
+  .container {
+    gap: 2rem;
+  }
+
+  .formPaper {
+    padding: 2rem;
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .cardsGrid {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    gap: 1.5rem;
+  }
+
+  .formPaper {
+    padding: 1.25rem;
+    border-radius: 10px;
+    max-width: 100%;
+  }
+
+  .formTitle {
+    font-size: 1.1rem;
+  }
+
+  .cardContent {
+    padding: 1.25rem;
+  }
+
+  .cardActions {
+    flex-direction: column;
+    padding: 1rem 1.25rem;
+  }
 }

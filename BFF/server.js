@@ -118,7 +118,7 @@ app.get("/api/incidents", async (req, res) => {
 
   try {
     const r = await axios.get(
-      `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description&sysparm_limit=100`,
+      `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cimpact%2Curgency%2Cshort_description&sysparm_limit=100`,
       {
         headers: { Authorization: `Bearer ${session.access_token}` },
       }
@@ -140,7 +140,7 @@ app.get("/api/incidents", async (req, res) => {
         tokenStore.set(sid, { ...session, ...refresh.data });
 
         const retry = await axios.get(
-          `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=number%2Cstate%2Cpriority%2Cshort_description&sysparm_limit=100`,
+          `${SN_INTANCE}/api/now/table/incident?sysparm_display_value=true&sysparm_fields=number%2Cstate%2Cimpact%2Curgency%2Cshort_description&sysparm_limit=100`,
           {
             headers: { Authorization: `Bearer ${session.access_token}` },
           }
@@ -199,10 +199,11 @@ app.post("/api/incidents", async (req, res) => {
     return res.status(401).send("Not authenticated");
   }
 
-  // Ensure priority is a number
+  // Ensure impact and urgency are numbers
   const payload = {
     ...req.body,
-    priority: Number(req.body.priority),
+    impact: Number(req.body.impact),
+    urgency: Number(req.body.urgency),
   };
 
   try {
@@ -270,10 +271,11 @@ app.put("/api/incidents/:id", async (req, res) => {
 
   const incidentId = req.params.id;
   
-  // Ensure priority is a number
+  // Ensure impact and urgency are numbers
   const payload = {
     ...req.body,
-    priority: Number(req.body.priority),
+    impact: Number(req.body.impact),
+    urgency: Number(req.body.urgency),
   };
 
   try {
@@ -290,7 +292,7 @@ app.put("/api/incidents/:id", async (req, res) => {
 
     // Fetch the updated incident with display values to return to client
     const getUpdated = await axios.get(
-      `${SN_INTANCE}/api/now/table/incident/${incidentId}?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description`,
+      `${SN_INTANCE}/api/now/table/incident/${incidentId}?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cimpact%2Curgency%2Cshort_description`,
       {
         headers: { Authorization: `Bearer ${session.access_token}` },
       }
@@ -326,7 +328,7 @@ app.put("/api/incidents/:id", async (req, res) => {
 
         // Fetch the updated incident with display values
         const getUpdated = await axios.get(
-          `${SN_INTANCE}/api/now/table/incident/${incidentId}?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cpriority%2Cshort_description`,
+          `${SN_INTANCE}/api/now/table/incident/${incidentId}?sysparm_display_value=true&sysparm_fields=sys_id%2Cnumber%2Cstate%2Cimpact%2Curgency%2Cshort_description`,
           {
             headers: { Authorization: `Bearer ${refresh.data.access_token}` },
           }

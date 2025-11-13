@@ -1,8 +1,25 @@
-.link{
+.link {
     text-decoration: none;
     color: white;
 }
-*{
+
+.navLink {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    padding: 8px 14px;
+    border-radius: 6px;
+    position: relative;
+}
+
+.navLink:hover {
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
