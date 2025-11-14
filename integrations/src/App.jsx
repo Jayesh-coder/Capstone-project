@@ -25,7 +25,7 @@ function Layout() {
       }}
     >
 
-      <AppBar position="sticky" sx={{ background: darkMode ? "#0d1b2a" : "#1565c0", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+      <AppBar position="sticky" sx={{ background: darkMode ? "#351c3fff" : "#610464ff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
         <Toolbar sx={{ justifyContent: 'space-between', py: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '0.5px', fontSize: '1.2rem' }}>
@@ -36,7 +36,7 @@ function Layout() {
               <Box sx={{ display: 'flex', gap: 2.5 }}>
                 <Link className={styles.navLink} to="/">Home</Link>
                 <Link className={styles.navLink} to="/about">About</Link>
-                <Link className={styles.navLink} to="/does-not-exist">404 Test</Link>
+                {/* <Link className={styles.navLink} to="/does-not-exist">404 Test</Link> */}
               </Box>
             )}
           </Box>

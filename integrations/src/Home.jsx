@@ -30,7 +30,7 @@ export default function Home() {
     impact: "",
     urgency: "",
   });
-  const [editingId, setEditingId] = useState(null); // track sys_id being edited
+  const [editingId, setEditingId] = useState(null); 
 
   const onDelete = async (sys_id) => {
     try {
@@ -62,7 +62,7 @@ export default function Home() {
           { withCredentials: true }
         );
 
-        // Handle both possible response structures from ServiceNow
+
         const updatedIncident = res.data.result || res.data;
         
         setIncidents((prev) =>
@@ -74,7 +74,6 @@ export default function Home() {
         );
         alert("Incident updated successfully");
       } else {
-        // CREATE new incident
         const res = await axios.post(
           "http://localhost:3001/api/incidents",
           {
@@ -163,7 +162,7 @@ export default function Home() {
             </Typography>
             <Divider sx={{ my: 2 }} />
             
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ width: "100%" }}>
               <Grid item xs={12}>
                 <TextField
                   label="Description"
@@ -171,7 +170,7 @@ export default function Home() {
                   value={formData.description}
                   onChange={handleChange}
                   multiline
-                  rows={2}
+                  rows={3}
                   fullWidth
                   variant="outlined"
                   size="small"
@@ -195,7 +194,7 @@ export default function Home() {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <FormControl fullWidth required size="small">
                   <InputLabel>Impact</InputLabel>
                   <Select name="impact" value={formData.impact} onChange={handleChange} label="Impact">
@@ -206,7 +205,7 @@ export default function Home() {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <FormControl fullWidth required size="small">
                   <InputLabel>Urgency</InputLabel>
                   <Select name="urgency" value={formData.urgency} onChange={handleChange} label="Urgency">
@@ -239,10 +238,9 @@ export default function Home() {
             </Grid>
           </Paper>
 
-          {/* Incidents List Section */}
           <Box>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: "#1565c0" }}>
-              📋 Incident Records
+              Incident Records:
             </Typography>
 
             {incidents.length === 0 ? (
@@ -250,9 +248,9 @@ export default function Home() {
                 No incidents found. Create one to get started!
               </Typography>
             ) : (
-              <Grid container spacing={2} className={styles.cardsGrid}>
+              <div className={styles.cardsGrid}>
                 {incidents.map((inc) => (
-                  <Grid item xs={12} sm={6} md={4} key={inc.sys_id}>
+                  <div key={inc.sys_id}>
                     <Card className={styles.card}>
                       <CardContent className={styles.cardContent}>
                         <Typography variant="h6" className={styles.cardTitle}>
@@ -274,7 +272,7 @@ export default function Home() {
                             <Chip label={`Impact: ${inc.impact ?? "-"}`} size="small" color="primary" variant="filled" />
                             <Chip label={`Urgency: ${inc.urgency ?? "-"}`} size="small" color="secondary" variant="filled" />
                           </Box>
-                          <Box sx={{ display: "flex", gap: 1 }}>
+                          <Box sx={{ display: "flex", gap: 24 }}>
                             <Button
                               size="small"
                               variant="outlined"
@@ -295,9 +293,9 @@ export default function Home() {
                         </Box>
                       </CardActions>
                     </Card>
-                  </Grid>
+                  </div>
                 ))}
-              </Grid>
+              </div>
             )}
           </Box>
         </Stack>
@@ -306,9 +304,7 @@ export default function Home() {
           <Typography variant="h5" sx={{ mb: 2 }}>
             Please log in to continue
           </Typography>
-          <Typography variant="body2" sx={{ color: "#666" }}>
-            Use the login button in the top-right corner to authenticate with ServiceNow.
-          </Typography>
+          
         </Box>
       )}
     </>
